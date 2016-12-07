@@ -48,31 +48,45 @@ public class ReadExcel extends HttpServlet {
 			OPCPackage pkg = OPCPackage.open(new File(filepath));
 			XSSFWorkbook wb = new XSSFWorkbook(pkg);
 			DataFormatter formatter = new DataFormatter();
-			Sheet sheet1 = (Sheet) wb.getSheetAt(0);
+			Sheet sheet1 = (Sheet) wb.getSheetAt(1);
+			StringBuilder repo = new StringBuilder("<table style='border:solid 1px #333333;'>");
+			String mobile, content, isSend, result;
 			for (Row row : sheet1) {
-				Cell cell1 = row.getCell(0);
-				Cell cell2 = row.getCell(1);
-				String mobile = cell1.getStringCellValue();
-				String content = cell2.getStringCellValue().toString();
-				response.getWriter().append("<div>").append("<i>" + mobile + "</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").append(content).append("<u>"+ this.sendSms(mobile, content) +"</u>").append("</div>");
+				Cell cell1 = row.getCell(2);
+				Cell cell2 = row.getCell(3);
+				Cell cell3 = row.getCell(4);
+				mobile = cell1.getStringCellValue();
+				content = cell2.getStringCellValue().toString();
+				isSend = cell3.getStringCellValue().toString();
+				if (isSend.equals("yes")){
+					Thread.sleep(1000);
+					result = this.sendSms(mobile, content);
+				} else {
+					result = "不发送";
+				}
+				repo.append(String.format("<tr><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td></tr>"
+						, mobile, content, isSend, result));
 			}
+			repo.append("</table>");
+			response.getWriter().append(repo.toString());
 			pkg.close();
 		} catch (EncryptedDocumentException | InvalidFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		//response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 	
 	private String sendSms (String mobile, String content) throws MalformedURLException{
-		String result = "no content";
+		String result = "";
 		BufferedReader in = null;// 读取响应输入流
 		
-		/**
         try {  
         	@SuppressWarnings("deprecation")
 			URL connURL = new URL(String.format("http://sms.zbwin.mobi/ws/sendsms.ashx?uid=%s&pass=%s&mobile=%s&content=%s"
-        			, "", "", mobile, java.net.URLEncoder.encode(content) ) );  
+        			, "cetaphil", "c91c03ea6c46a86cbc019be3d71d0a1a", mobile, java.net.URLEncoder.encode(content) ) );  
             // 打开URL连接
             java.net.HttpURLConnection httpConn = (java.net.HttpURLConnection) connURL  
                     .openConnection();  
@@ -101,8 +115,7 @@ public class ReadExcel extends HttpServlet {
             } catch (IOException ex) {  
                 ex.printStackTrace();  
             }  
-        }  
-        **/
+        }
         return result;
 	}
 
