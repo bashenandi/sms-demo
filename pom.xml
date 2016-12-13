@@ -69,7 +69,7 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>7.6.16.v20140903</version>
         <configuration>
-          <scanIntervalSeconds>10</scanIntervalSeconds>
+          <scanIntervalSeconds>5</scanIntervalSeconds>
           <webAppConfig>
             <contextPath>/sms-demo</contextPath>
           </webAppConfig>

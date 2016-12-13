@@ -21,6 +21,8 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.microsoft.schemas.office.visio.x2012.main.CellType;
+
 /**
  * Servlet implementation class ReadExcel
  */
@@ -48,34 +50,29 @@ public class ReadExcel extends HttpServlet {
 			OPCPackage pkg = OPCPackage.open(new File(filepath));
 			XSSFWorkbook wb = new XSSFWorkbook(pkg);
 			DataFormatter formatter = new DataFormatter();
-			Sheet sheet1 = (Sheet) wb.getSheetAt(1);
-			StringBuilder repo = new StringBuilder("<table style='border:solid 1px #333333;'>");
-			String mobile, content, isSend, result;
+			StringBuilder repo = new StringBuilder("<table style='border:solid 1px #333333;'><tbody>");
+			Sheet sheet1 = (Sheet) wb.getSheetAt(0);
+			String mobile = "m", content = "c", result = "no";
 			for (Row row : sheet1) {
-				Cell cell1 = row.getCell(2);
-				Cell cell2 = row.getCell(3);
-				Cell cell3 = row.getCell(4);
-				mobile = cell1.getStringCellValue();
-				content = cell2.getStringCellValue().toString();
-				isSend = cell3.getStringCellValue().toString();
-				if (isSend.equals("yes")){
+				Cell cellMobile = row.getCell(0);
+				Cell cellContent = row.getCell(1);
+				if(cellMobile != null && cellContent != null){
+					mobile = cellMobile.getStringCellValue();
+					content = cellContent.getStringCellValue();
 					Thread.sleep(1000);
 					result = this.sendSms(mobile, content);
-				} else {
-					result = "不发送";
+					repo.append(String.format("<tr><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td></tr>"
+							, mobile, content, result));
 				}
-				repo.append(String.format("<tr><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td></tr>"
-						, mobile, content, isSend, result));
 			}
-			repo.append("</table>");
+			repo.append("</tbody></table>");
 			response.getWriter().append(repo.toString());
 			pkg.close();
 		} catch (EncryptedDocumentException | InvalidFormatException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			response.getWriter().append("Base exception is:" + e.getMessage());
+		} catch (Exception e){
+			response.getWriter().append("Exception is:" + e.getStackTrace());
 		}
 	}
 	
@@ -86,7 +83,7 @@ public class ReadExcel extends HttpServlet {
         try {  
         	@SuppressWarnings("deprecation")
 			URL connURL = new URL(String.format("http://sms.zbwin.mobi/ws/sendsms.ashx?uid=%s&pass=%s&mobile=%s&content=%s"
-        			, "cetaphil", "c91c03ea6c46a86cbc019be3d71d0a1a", mobile, java.net.URLEncoder.encode(content) ) );  
+        			, "omp", "21f11b316d6c6defaae08e83b1c2faac", mobile, java.net.URLEncoder.encode(content) ) );  
             // 打开URL连接
             java.net.HttpURLConnection httpConn = (java.net.HttpURLConnection) connURL  
                     .openConnection();  
