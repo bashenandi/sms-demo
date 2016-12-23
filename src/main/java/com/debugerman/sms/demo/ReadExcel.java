@@ -46,6 +46,7 @@ public class ReadExcel extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");
 		String filename = request.getParameter("file");
 		String filepath = request.getRealPath("upload/" + filename);
+		int idxRow = 0;
 		try {
 			OPCPackage pkg = OPCPackage.open(new File(filepath));
 			XSSFWorkbook wb = new XSSFWorkbook(pkg);
@@ -56,10 +57,11 @@ public class ReadExcel extends HttpServlet {
 			for (Row row : sheet1) {
 				Cell cellMobile = row.getCell(0);
 				Cell cellContent = row.getCell(1);
+				idxRow++;
 				if(cellMobile != null && cellContent != null){
 					mobile = cellMobile.getStringCellValue();
 					content = cellContent.getStringCellValue();
-					Thread.sleep(1000);
+					Thread.sleep(200);
 					result = this.sendSms(mobile, content);
 					repo.append(String.format("<tr><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td><td style='border:solid 1px #333333;'>%s</td></tr>"
 							, mobile, content, result));
@@ -72,7 +74,7 @@ public class ReadExcel extends HttpServlet {
 			// TODO Auto-generated catch block
 			response.getWriter().append("Base exception is:" + e.getMessage());
 		} catch (Exception e){
-			response.getWriter().append("Exception is:" + e.getStackTrace());
+			response.getWriter().append("Exception at "+ idxRow +", error is:" + e.getStackTrace());
 		}
 	}
 	
@@ -82,8 +84,10 @@ public class ReadExcel extends HttpServlet {
 		
         try {  
         	@SuppressWarnings("deprecation")
+        	String uid = "cetaphil"; //omp
+        	String pwd = "c91c03ea6c46a86cbc019be3d71d0a1a"; //21f11b316d6c6defaae08e83b1c2faac
 			URL connURL = new URL(String.format("http://sms.zbwin.mobi/ws/sendsms.ashx?uid=%s&pass=%s&mobile=%s&content=%s"
-        			, "omp", "21f11b316d6c6defaae08e83b1c2faac", mobile, java.net.URLEncoder.encode(content) ) );  
+        			, uid, pwd, mobile, java.net.URLEncoder.encode(content) ) );  
             // 打开URL连接
             java.net.HttpURLConnection httpConn = (java.net.HttpURLConnection) connURL  
                     .openConnection();  
