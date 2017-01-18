@@ -85,7 +85,7 @@ public class ReadExcel extends HttpServlet {
         try {  
         	@SuppressWarnings("deprecation")
         	String uid = "cetaphil"; //omp
-        	String pwd = "c91c03ea6c46a86cbc019be3d71d0a1a"; //21f11b316d6c6defaae08e83b1c2faac
+        	String pwd = "";
 			URL connURL = new URL(String.format("http://sms.zbwin.mobi/ws/sendsms.ashx?uid=%s&pass=%s&mobile=%s&content=%s"
         			, uid, pwd, mobile, java.net.URLEncoder.encode(content) ) );  
             // 打开URL连接
